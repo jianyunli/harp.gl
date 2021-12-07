@@ -3,7 +3,7 @@
  * Licensed under Apache 2.0, see full license in LICENSE
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Feature, FeatureCollection, FlatTheme, StyleSet } from "@here/harp-datasource-protocol";
+import { Feature, FeatureCollection, StyleSet, Theme } from "@here/harp-datasource-protocol";
 import { clipLineString } from "@here/harp-geometry/lib/ClipLineString";
 import { wrapLineString } from "@here/harp-geometry/lib/WrapLineString";
 import { wrapPolygon } from "@here/harp-geometry/lib/WrapPolygon";
@@ -1016,7 +1016,7 @@ describe("MapView + OmvDataSource + GeoJsonDataProvider rendering test", functio
 
     describe("Polygons", async function () {
         it("Triangle with a hole rendered at zoom level 2", async function () {
-            const theme: FlatTheme = {
+            const theme: Theme = {
                 lights,
                 styles: [
                     {

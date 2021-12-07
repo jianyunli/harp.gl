@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {
-    FlatTheme,
     ITileDecoder,
     OptionsMap,
     StyleSet,
@@ -216,21 +215,17 @@ export class TileDataSource<TileType extends Tile = Tile> extends DataSource {
      * if matching styleset (see `styleSetName` property) is found in `theme`.
      * @override
      */
-    async setTheme(theme: Theme | FlatTheme, languages?: string[]): Promise<void> {
+    async setTheme(theme: Theme, languages?: string[]): Promise<void> {
         // Seems superfluent, but the call to  ThemeLoader.load will resolve extends etc.
         theme = await ThemeLoader.load(theme);
 
-        let styleSet: StyleSet | undefined;
-        if (this.styleSetName !== undefined && theme.styles !== undefined) {
-            styleSet = theme.styles[this.styleSetName];
-        }
         if (languages !== undefined) {
             this.languages = languages;
         }
 
-        if (styleSet !== undefined) {
+        if ((theme.styles as StyleSet) !== undefined) {
             this.m_decoder.configure({
-                styleSet,
+                styleSet: theme.styles as StyleSet,
                 definitions: theme.definitions,
                 priorities: theme.priorities,
                 labelPriorities: theme.labelPriorities,

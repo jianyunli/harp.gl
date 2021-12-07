@@ -3,8 +3,7 @@
  * Licensed under Apache 2.0, see full license in LICENSE
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import { FlatTheme, ImageTexture, Light, Style } from "@here/harp-datasource-protocol";
+import { ImageTexture, Light, Style, StyleSet, Theme } from "@here/harp-datasource-protocol";
 
 //    Mocha discourages using arrow functions, see https://mochajs.org/#arrow-functions
 
@@ -94,7 +93,7 @@ export class ThemeBuilder {
         }
     };
 
-    private readonly m_baseTheme: FlatTheme = {
+    private readonly m_baseTheme: Theme = {
         lights: ThemeBuilder.lights,
         sky: {
             type: "gradient",
@@ -108,7 +107,7 @@ export class ThemeBuilder {
         styles: []
     };
 
-    private m_theme: FlatTheme = { styles: [] };
+    private m_theme: Theme = { styles: [] };
 
     /**
      *
@@ -121,7 +120,7 @@ export class ThemeBuilder {
         }
     }
 
-    build(): FlatTheme {
+    build(): Theme {
         return this.m_theme;
     }
 
@@ -156,7 +155,7 @@ export class ThemeBuilder {
     }
 
     withStyle(style: Style): ThemeBuilder {
-        this.m_theme.styles!.push(style);
+        (this.m_theme.styles! as StyleSet).push(style);
         return this;
     }
 }

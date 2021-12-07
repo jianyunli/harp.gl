@@ -43,7 +43,7 @@ export interface Theme {
      * overwrite these defined in base theme.
      */
 
-    extends?: string | Theme | FlatTheme | Array<string | Theme | FlatTheme>;
+    extends?: string | Theme | Array<string | Theme>;
 
     /**
      * Actual URL the theme has been loaded from.
@@ -90,7 +90,7 @@ export interface Theme {
     /**
      * Map styles available for datasources used to render the map.
      */
-    styles?: Styles;
+    styles?: OldStyles | StyleSet;
 
     /**
      * Define the style to render different types of text used on the map.
@@ -186,19 +186,6 @@ export interface StylePriority {
      */
     category?: string;
 }
-
-/**
- * A type representing HARP themes with all the styleset declarations
- * grouped in one `Array`.
- *
- * @internal This type will merge with {@link Theme}.
- */
-export type FlatTheme = Omit<Theme, "styles"> & {
-    /**
-     * The style rules used to render the map.
-     */
-    styles?: StyleSet;
-};
 
 /**
  * Value definition commons.
@@ -419,9 +406,45 @@ export type Style =
 
 /**
  * A dictionary of {@link StyleSet}s.
+ * @deprecated
+ *
+ * Use {@link StyleSet} instead, which is just a flat list of {@link Style}
  */
-export interface Styles {
+export interface OldStyles {
     [styleSetName: string]: StyleSet;
+}
+
+/**
+ * Utility function to distinguish Styles until {@link OldStyles} is deprecated
+ *
+ * @deprecated
+ * @param styles
+ * @returns
+ */
+export function isOldStyles(styles: OldStyles | StyleSet | undefined) {
+    return styles !== undefined && !Array.isArray(styles);
+}
+
+/**
+ * Utility function to convert old style format to new one, to be deprecated with
+ * {@link OldStyles}
+ *
+ * @param oldStyles
+ * @returns
+ *
+ * @deprecated
+ */
+export function convertOldStylesToStyleSet(oldStyles: OldStyles): StyleSet {
+    const styles: StyleSet = [];
+    for (const styleSetName in oldStyles) {
+        oldStyles[styleSetName].forEach(style => {
+            if (style.styleSet === undefined) {
+                style.styleSet = styleSetName;
+            }
+            styles.push(style);
+        });
+    }
+    return styles;
 }
 
 /**

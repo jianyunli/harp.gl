@@ -3,12 +3,14 @@
  * Licensed under Apache 2.0, see full license in LICENSE
  * SPDX-License-Identifier: Apache-2.0
  */
-
-/* eslint-disable no-console */
-
-//    Mocha discourages using arrow functions, see https://mochajs.org/#arrow-functions
-
-import { Definitions, Theme } from "@here/harp-datasource-protocol";
+import {
+    convertOldStylesToStyleSet,
+    Definitions,
+    isOldStyles,
+    OldStyles,
+    StyleSet,
+    Theme
+} from "@here/harp-datasource-protocol";
 import {
     Expr,
     isJsonExpr,
@@ -19,6 +21,10 @@ import { loadTestResource } from "@here/harp-test-utils";
 import * as Ajv from "ajv";
 import { assert } from "chai";
 import * as path from "path";
+
+/* eslint-disable no-console */
+
+//    Mocha discourages using arrow functions, see https://mochajs.org/#arrow-functions
 
 function assertExprValid(
     expr: JsonExpr,
@@ -84,35 +90,36 @@ describe("Berlin Theme", function () {
             });
 
             it(`works with StyleSetEvaluator`, async function () {
-                for (const styleSetName in theme.styles) {
-                    const styleSet = theme.styles[styleSetName];
-                    new StyleSetEvaluator({ styleSet, definitions: theme.definitions });
+                if (isOldStyles(theme.styles)) {
+                    theme.styles = convertOldStylesToStyleSet(theme.styles as OldStyles);
                 }
+                new StyleSetEvaluator({
+                    styleSet: theme.styles as StyleSet,
+                    definitions: theme.definitions
+                });
             });
 
             it(`contains proper expressions in StyleSets`, async function () {
-                for (const styleSetName in theme.styles) {
-                    const styleSet = theme.styles[styleSetName];
-                    for (let i = 0; i < styleSet.length; ++i) {
-                        const style = styleSet[i];
-                        const location = `${styleSetName}[${i}]`;
-                        if (typeof style.when === "string") {
-                            assert.doesNotThrow(() => Expr.parse(style.when as string));
-                        } else if (style.when !== undefined) {
-                            assertExprValid(style.when, theme.definitions, `${location}.when`);
-                        }
+                const styles = theme.styles as StyleSet;
+                for (let i = 0; i < styles.length; ++i) {
+                    const style = styles[i];
+                    const location = `${styles[i].styleSet}[${i}]`;
+                    if (typeof style.when === "string") {
+                        assert.doesNotThrow(() => Expr.parse(style.when as string));
+                    } else if (style.when !== undefined) {
+                        assertExprValid(style.when, theme.definitions, `${location}.when`);
+                    }
 
-                        for (const attrName in style.attr) {
-                            const attrValue = (style.attr as any)[attrName];
-                            if (!isJsonExpr(attrValue)) {
-                                continue;
-                            }
-                            assertExprValid(
-                                attrValue,
-                                theme.definitions,
-                                `${location}.attrs.${attrName}`
-                            );
+                    for (const attrName in style.attr) {
+                        const attrValue = (style.attr as any)[attrName];
+                        if (!isJsonExpr(attrValue)) {
+                            continue;
                         }
+                        assertExprValid(
+                            attrValue,
+                            theme.definitions,
+                            `${location}.attrs.${attrName}`
+                        );
                     }
                 }
             });

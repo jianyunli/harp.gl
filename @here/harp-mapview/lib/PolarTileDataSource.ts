@@ -3,13 +3,7 @@
  * Licensed under Apache 2.0, see full license in LICENSE
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-    FlatTheme,
-    StandardGeometryKind,
-    StyleSet,
-    Technique,
-    Theme
-} from "@here/harp-datasource-protocol";
+import { StandardGeometryKind, StyleSet, Technique, Theme } from "@here/harp-datasource-protocol";
 import { MapEnv, StyleSetEvaluator } from "@here/harp-datasource-protocol/index-decoder";
 import {
     GeoCoordinates,
@@ -127,17 +121,12 @@ export class PolarTileDataSource extends DataSource {
     }
 
     /** @override */
-    async setTheme(theme: Theme | FlatTheme): Promise<void> {
+    async setTheme(theme: Theme): Promise<void> {
         // Seems superfluent, but the call to  ThemeLoader.load will resolve extends etc.
         theme = await ThemeLoader.load(theme);
-        let styleSet: StyleSet | undefined;
-
-        if (this.styleSetName !== undefined && theme.styles !== undefined) {
-            styleSet = theme.styles[this.styleSetName];
-        }
 
         this.m_styleSetEvaluator = new StyleSetEvaluator({
-            styleSet: styleSet ?? [],
+            styleSet: theme.styles as StyleSet,
             definitions: theme.definitions,
             priorities: theme.priorities,
             labelPriorities: theme.labelPriorities
